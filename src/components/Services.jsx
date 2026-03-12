@@ -1,10 +1,27 @@
+import { useEffect, useState } from "react";
 import Reveal from "../hooks/Reveal";
+import { client } from "../lib/sanityClient";
+import { urlFor } from "../lib/imageBuilder";
 
 export default function Services() {
-  const SERVICES = [
+  const [cmsServices, setCmsServices] = useState([]);
+
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "service"]{
+        label,
+        desc,
+        image,
+        
+      }`,
+      )
+      .then((data) => setCmsServices(data));
+  }, []);
+
+  const DEFAULT_SERVICES = [
     {
       label: "Microneedling for Scars",
-      emoji: "💉",
       image:
         "https://diaminyaesthetics.com/cdn/shop/articles/Microneedling_for_Acne_Scars4.jpg?v=1752568960",
       bg: "bg-cyan-100",
@@ -12,7 +29,6 @@ export default function Services() {
     },
     {
       label: "TCA Cross",
-      emoji: "⚗️",
       image:
         "https://northsidedermatology.com.au/wp-content/uploads/2020/07/Screen-Shot-2022-10-16-at-9.02.18-pm.png",
       bg: "bg-emerald-100",
@@ -20,13 +36,21 @@ export default function Services() {
     },
     {
       label: "Cut the Bottom Scar",
-      emoji: "✂️",
       image:
         "https://hbioclinic.com.vn/wp-content/uploads/2025/07/uu-va-nhuoc-diem-cua-cat-day-cac-vet-seo-ro.jpg.webp",
       bg: "bg-orange-100",
       desc: "Subcision technique to release tethered acne scars, allowing natural skin elevation.",
     },
   ];
+
+  const services =
+    cmsServices && cmsServices.length > 0
+      ? cmsServices.map((s) => ({
+          label: s.label,
+          desc: s.desc,
+          image: urlFor(s.image).width(800).url(),
+        }))
+      : DEFAULT_SERVICES;
 
   return (
     <section className="bg-cyan-50/60 py-16 md:py-20 px-4 sm:px-6 md:px-12">
@@ -46,12 +70,10 @@ export default function Services() {
 
       {/* Cards */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {SERVICES.map((s, i) => (
+        {services.map((s, i) => (
           <Reveal key={s.label} delay={i * 0.1}>
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-cyan-100 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer">
-              <div
-                className={`h-40 sm:h-44 ${s.bg} flex items-center justify-center`}
-              >
+              <div className={`h-40 sm:h-44 flex items-center justify-center`}>
                 <img src={s.image} className="w-full h-full object-cover" />
               </div>
 
@@ -73,7 +95,7 @@ export default function Services() {
         ))}
       </div>
 
-      {/* Technology banner */}
+      {/* Technology Banner */}
       <Reveal delay={0.2}>
         <div className="max-w-5xl mx-auto mt-10 bg-white rounded-2xl px-5 sm:px-8 md:px-11 py-6 md:py-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>

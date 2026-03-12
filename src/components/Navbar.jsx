@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const NAV_LINKS = [
-    "About Us",
-    "Pitted Scars Treatment",
-    "Treatment Effectiveness",
-    "Blog",
+    { label: "About Us", path: "/about" },
+    { label: "Pitted Scars Treatment", path: "/treatment" },
+    { label: "Treatment Effectiveness", path: "/results" },
+    { label: "Blog", path: "/blog" },
   ];
 
   useEffect(() => {
@@ -35,15 +36,25 @@ export default function Navbar() {
 
       {/* Desktop Links */}
       <div className="hidden md:flex items-center gap-9">
-        {NAV_LINKS.map((l) => (
-          <a
-            key={l}
-            href="#"
-            className="text-sm font-medium text-slate-700 hover:text-cyan-500 transition-colors duration-200"
-          >
-            {l}
-          </a>
-        ))}
+        {NAV_LINKS.map((l) =>
+          l.path.startsWith("/") ? (
+            <Link
+              key={l.label}
+              to={l.path}
+              className="text-sm font-medium text-slate-700 hover:text-cyan-500 transition-colors duration-200"
+            >
+              {l.label}
+            </Link>
+          ) : (
+            <a
+              key={l.label}
+              href={l.path}
+              className="text-sm font-medium text-slate-700 hover:text-cyan-500 transition-colors duration-200"
+            >
+              {l.label}
+            </a>
+          ),
+        )}
       </div>
 
       {/* Right Side */}
@@ -68,16 +79,27 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {open && (
         <div className="absolute top-16 left-0 right-0 bg-white shadow-md md:hidden flex flex-col items-center py-6 gap-5">
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l}
-              href="#"
-              className="text-sm font-medium text-slate-700 hover:text-cyan-500"
-              onClick={() => setOpen(false)}
-            >
-              {l}
-            </a>
-          ))}
+          {NAV_LINKS.map((l) =>
+            l.path.startsWith("/") ? (
+              <Link
+                key={l.label}
+                to={l.path}
+                className="text-sm font-medium text-slate-700 hover:text-cyan-500"
+                onClick={() => setOpen(false)}
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.path}
+                className="text-sm font-medium text-slate-700 hover:text-cyan-500"
+                onClick={() => setOpen(false)}
+              >
+                {l.label}
+              </a>
+            ),
+          )}
 
           <a
             href="#contact"

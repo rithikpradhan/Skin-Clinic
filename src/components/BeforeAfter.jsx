@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import Reveal from "../hooks/Reveal";
+import { client } from "../lib/sanityClient";
+import { urlFor } from "../lib/imageBuilder";
+
 import ananyaR from "../assets/Pigmantation-before.png";
 import ananyaA from "../assets/Pigmantation-after.png";
 import nishiB from "../assets/acne-before.png";
@@ -8,12 +11,35 @@ import kavyaB from "../assets/pitted-before.png";
 import kavyaA from "../assets/pitted-after.png";
 
 export default function BeforeAfter() {
-  const SLIDES = [
+  const [cmsSlides, setCmsSlides] = useState([]);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "beforeAfter"]{
+        name,
+        months,
+        goal,
+        severity,
+        interval,
+        session,
+        result,
+        beforeImage,
+        afterImage
+      }`,
+      )
+      .then((data) => setCmsSlides(data));
+  }, []);
+
+  const DEFAULT_SLIDES = [
     {
       name: "Nishi R.",
       months: 5,
       goal: "Remove acne scars",
       severity: "Moderate",
+      session: "3-phase laser",
+      interval: "30 min",
       result: "Smooth, even skin",
       beforeImage: nishiB,
       afterImage: nishiA,
@@ -23,6 +49,8 @@ export default function BeforeAfter() {
       months: 6,
       goal: "Pitted scar correction",
       severity: "Severe",
+      session: "3-phase laser",
+      interval: "30 min",
       result: "Renewed confidence",
       beforeImage: kavyaB,
       afterImage: kavyaA,
@@ -32,23 +60,38 @@ export default function BeforeAfter() {
       months: 4,
       goal: "Hyperpigmentation",
       severity: "Mild",
+      session: "3-phase laser",
+      interval: "30 min",
       result: "Bright, clear skin",
       beforeImage: ananyaR,
       afterImage: ananyaA,
     },
   ];
 
-  const [activeSlide, setActiveSlide] = useState(0);
+  const slides =
+    cmsSlides && cmsSlides.length > 0
+      ? cmsSlides.map((s) => ({
+          name: s.name,
+          months: s.months,
+          goal: s.goal,
+          severity: s.severity,
+          result: s.result,
+          session: s.session,
+          interval: s.interval,
+          beforeImage: urlFor(s.beforeImage).width(800).url(),
+          afterImage: urlFor(s.afterImage).width(800).url(),
+        }))
+      : DEFAULT_SLIDES;
 
   useEffect(() => {
     const t = setInterval(() => {
-      setActiveSlide((p) => (p + 1) % SLIDES.length);
+      setActiveSlide((p) => (p + 1) % slides.length);
     }, 4000);
 
     return () => clearInterval(t);
-  }, []);
+  }, [slides.length]);
 
-  const s = SLIDES[activeSlide];
+  const s = slides[activeSlide];
 
   return (
     <section
@@ -71,7 +114,6 @@ export default function BeforeAfter() {
         </Reveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-12 items-center">
-          {" "}
           {/* Journey Card */}
           <Reveal>
             <div className="w-full bg-white shadow-xl border border-slate-200 rounded-3xl p-8">
@@ -81,7 +123,7 @@ export default function BeforeAfter() {
                 </p>
 
                 <div className="flex gap-2">
-                  {SLIDES.map((_, i) => (
+                  {slides.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveSlide(i)}
@@ -100,9 +142,9 @@ export default function BeforeAfter() {
                   ["User", s.name],
                   ["Goal", s.goal],
                   ["Severity", s.severity],
-                  ["Protocol", "3-phase laser"],
-                  ["Sessions", "8 total"],
-                  ["Interval", "Every 3 weeks"],
+                  // ["Protocol", "3-phase laser"],
+                  ["Session", s.session],
+                  ["Interval", s.interval],
                   ["Result", s.result],
                 ].map(([k, v]) => (
                   <div key={k} className="flex gap-2">
@@ -115,12 +157,12 @@ export default function BeforeAfter() {
               </div>
             </div>
           </Reveal>
-          {/* Before After Section */}
+
+          {/* Before After */}
           <Reveal delay={0.15}>
             <div className="flex flex-col md:flex-row gap-8 justify-center items-center lg:col-span-2">
-              {" "}
               {/* Before */}
-              <div className="group bg-white shadow-2xl w-full max-w-[360px] h-[360px] rounded-2xl p-4 text-center transition duration-500 hover:-translate-y-2 hover:shadow-3xl">
+              <div className="group bg-white shadow-2xl w-full max-w-[360px] h-[360px] rounded-2xl p-4 text-center transition duration-500 hover:-translate-y-2">
                 <img
                   key={s.beforeImage}
                   src={s.beforeImage}
@@ -131,8 +173,9 @@ export default function BeforeAfter() {
                   Before Treatment
                 </p>
               </div>
+
               {/* After */}
-              <div className="group bg-white shadow-2xl w-full max-w-[400px] h-[400px] rounded-2xl p-4 text-center transition duration-500 hover:-translate-y-2 hover:shadow-3xl md:-translate-y-10">
+              <div className="group bg-white shadow-2xl w-full max-w-[400px] h-[400px] rounded-2xl p-4 text-center transition duration-500 hover:-translate-y-2 md:-translate-y-10">
                 <img
                   key={s.afterImage}
                   src={s.afterImage}

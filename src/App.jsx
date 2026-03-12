@@ -1,27 +1,20 @@
-import Hero from "./components/Hero";
 import Navbar from "./components/Navbar";
-import TrustBar from "./components/TrustBar";
-import Treatments from "./components/Treatments";
-import Services from "./components/Services";
-import BeforeAfter from "./components/BeforeAfter";
-import AboutTeam from "./components/AboutTeam";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
-import FloatingBookingButton from "./components/FloatingBookingButton";
+import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
+
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
     <div>
       <Navbar />
-      <Hero />
-      <TrustBar />
-      <Treatments />
-      <Services />
-      <BeforeAfter />
-      <AboutTeam />
-      <Contact />
-      <Footer />
-      <FloatingBookingButton />
+
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
+      </Routes>
     </div>
   );
 }

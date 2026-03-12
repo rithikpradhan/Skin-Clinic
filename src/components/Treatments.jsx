@@ -1,9 +1,26 @@
+import { useEffect, useState } from "react";
+import { client } from "../lib/sanityClient";
+import { urlFor } from "../lib/imageBuilder";
 import Reveal from "../hooks/Reveal";
 
 export default function Treatments() {
-  const TREATMENTS = [
+  const [cmsTreatments, setCmsTreatments] = useState([]);
+
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "treatment"]{
+        title,
+        desc,
+        image,
+        color
+      }`,
+      )
+      .then((data) => setCmsTreatments(data));
+  }, []);
+
+  const DEFAULT_TREATMENTS = [
     {
-      icon: "🔬",
       image:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiYmaikOljV_2tQQ-aJI7-pZXO12ceCSKOMg&s",
       title: "Remove Pitted, Indented Scars",
@@ -11,7 +28,6 @@ export default function Treatments() {
       color: "bg-cyan-50",
     },
     {
-      icon: "✦",
       image:
         "https://img.lb.wbmdstatic.com/vim/live/webmd/consumer_assets/site_images/articles/health_tools/benefits_of_light_therapy_slideshow/1800ss_getty_rf_facial_acne.jpg",
       title: "Remove Acne Scars",
@@ -19,7 +35,6 @@ export default function Treatments() {
       color: "bg-green-50",
     },
     {
-      icon: "◈",
       image:
         "https://www.drdixitcosmeticdermatology.com/assets/blog/6c05e97af3ce8c478ff01a08a310a192.webp",
       title: "Remove Freckles",
@@ -27,7 +42,6 @@ export default function Treatments() {
       color: "bg-yellow-50",
     },
     {
-      icon: "❋",
       image:
         "https://media.post.rvohealth.io/wp-content/uploads/2021/05/Black-teenager-applying-under-eye-patches-732x540-thumbnail.jpg",
       title: "Restore Thin, Weak Skin",
@@ -35,7 +49,6 @@ export default function Treatments() {
       color: "bg-red-50",
     },
     {
-      icon: "◇",
       image:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSx7FtReSojULYTNGBrNL-gvmLIh20J9JBF8w&s",
       title: "Remove Dry Skin",
@@ -43,6 +56,16 @@ export default function Treatments() {
       color: "bg-purple-50",
     },
   ];
+
+  const treatments =
+    cmsTreatments && cmsTreatments.length > 0
+      ? cmsTreatments.map((t) => ({
+          title: t.title,
+          desc: t.desc,
+          image: urlFor(t.image).width(200).url(),
+          color: t.color || "bg-cyan-50",
+        }))
+      : DEFAULT_TREATMENTS;
 
   return (
     <section
@@ -57,8 +80,8 @@ export default function Treatments() {
           </p>
 
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 leading-tight mb-4">
-            Treating pitted scars,{" "}
-            <span className="text-cyan-500">concave scars</span>
+            Treating pitted scars,
+            <span className="text-cyan-500"> concave scars</span>
           </h2>
 
           <p className="text-sm md:text-[15px] text-slate-500 leading-relaxed mb-8">
@@ -74,7 +97,6 @@ export default function Treatments() {
             Learn More
           </a>
 
-          {/* Illustration panel */}
           <div className="mt-10 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-3xl h-48 sm:h-56 md:h-60 overflow-hidden relative flex items-end justify-center">
             <img
               src="https://images.unsplash.com/photo-1728727217834-b190862837a3?q=80&w=870&auto=format&fit=crop"
@@ -87,15 +109,14 @@ export default function Treatments() {
           </div>
         </Reveal>
 
-        {/* Right — treatment rows */}
+        {/* Right */}
         <Reveal delay={0.15}>
           <div>
-            {TREATMENTS.map((t) => (
+            {treatments.map((t) => (
               <div
                 key={t.title}
                 className="flex items-center gap-3 sm:gap-4 bg-white rounded-full px-3 sm:px-4 py-3 shadow-md hover:shadow-cyan-200/60 hover:shadow-lg hover:translate-x-1 transition-all duration-200 cursor-pointer mb-3"
               >
-                {/* Icon */}
                 <div
                   className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${t.color} flex items-center justify-center shrink-0`}
                 >
@@ -105,7 +126,6 @@ export default function Treatments() {
                   />
                 </div>
 
-                {/* Text */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-slate-800 truncate">
                     {t.title}
